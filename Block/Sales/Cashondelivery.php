@@ -44,16 +44,21 @@ class Cashondelivery extends Template
 
         $this->_source = $parent->getSource();
 
-        $fee = new DataObject(
-            [
-                'code' => 'msp_cashondelivery',
-                'strong' => false,
-                'value' => $this->getSource()->getBaseMspCodAmount() - $this->getSource()->getBaseMspCodTaxAmount(),
-                'label' => __('Cash on delivery'),
-            ]
-        );
+        $order = ($this->_source instanceof \Magento\Sales\Model\Order) ? $this->_source : $this->_source->getOrder();
 
-        $parent->addTotal($fee, 'msp_cashondelivery');
+        if ($order->getPayment()->getMethod() == \MSP\CashOnDelivery\Model\Payment::CODE) {
+
+            $fee = new DataObject(
+                    [
+                            'code' => 'msp_cashondelivery',
+                            'strong' => false,
+                            'value' => $this->getSource()->getBaseMspCodAmount() - $this->getSource()->getBaseMspCodTaxAmount(),
+                            'label' => __('Cash on delivery'),
+                    ]
+            );
+
+            $parent->addTotal($fee, 'msp_cashondelivery');
+        }
 
         return $this;
     }
